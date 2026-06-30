@@ -37,18 +37,21 @@ class StatCard extends StatelessWidget {
       isPositive = false;
     }
 
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     return Container(
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDark ? Colors.white.withValues(alpha: 0.04) : Colors.white,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: Colors.blue.shade50.withValues(alpha: 0.8),
+          color: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.blue.shade50.withValues(alpha: 0.8),
           width: 1.5,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.blue.shade500.withValues(alpha: 0.04),
+            color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.02),
             blurRadius: 16,
             spreadRadius: 2,
             offset: const Offset(0, 8),
@@ -66,10 +69,10 @@ class StatCard extends StatelessWidget {
                 children: [
                   Text(
                     count,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
-                      color: Color(0xFF0F172A), // Slate-900 (Premium text color)
+                      color: theme.colorScheme.onBackground,
                     ),
                   ),
                   const SizedBox(width: 2),
@@ -105,17 +108,22 @@ class StatCard extends StatelessWidget {
                 padding: const EdgeInsets.all(4),
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
-                    colors: [
-                      Colors.blue.shade50,
-                      Colors.blue.shade100.withValues(alpha: 0.5),
-                    ],
+                    colors: isDark
+                        ? [
+                            Colors.white.withValues(alpha: 0.06),
+                            Colors.white.withValues(alpha: 0.02),
+                          ]
+                        : [
+                            Colors.blue.shade50,
+                            Colors.blue.shade100.withValues(alpha: 0.5),
+                          ],
                   ),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
                   icon,
                   size: 14,
-                  color: Colors.blue.shade700,
+                  color: isDark ? Colors.white54 : Colors.blue.shade700,
                 ),
               ),
             ],
@@ -123,9 +131,9 @@ class StatCard extends StatelessWidget {
           const Spacer(),
           Text(
             title,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 12,
-              color: Color(0xFF64748B), // Slate-500 (Premium subtitle color)
+              color: isDark ? Colors.white54 : const Color(0xFF64748B),
               fontWeight: FontWeight.w500,
               height: 1.2,
             ),

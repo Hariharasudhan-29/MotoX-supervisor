@@ -17,6 +17,13 @@ class AppColors {
   static const Color error = Color(0xFFCF6679);
   static const Color textHighEmphasis = Color(0xFFE0E0E0);
   static const Color textMediumEmphasis = Color(0xFFA0A0A0);
+
+  static const Color gold = champagneGold;
+  static const LinearGradient goldGradient = LinearGradient(
+    colors: [goldGradientStart, goldGradientEnd],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
 }
 
 class AppTheme {
@@ -78,4 +85,12 @@ class AppTheme {
       ),
     );
   }
+}
+
+class AppStyles {
+  static const TextStyle body = TextStyle(
+    fontFamily: 'Inter',
+    fontSize: 16,
+    color: AppColors.textHighEmphasis,
+  );
 }

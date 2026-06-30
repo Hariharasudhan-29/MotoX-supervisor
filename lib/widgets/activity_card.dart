@@ -24,7 +24,6 @@ class ActivityCard extends StatelessWidget {
     final vTheme = VehicleTheme.getThemeForVehicle(vehicleName);
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
       decoration: BoxDecoration(
         gradient: LinearGradient(

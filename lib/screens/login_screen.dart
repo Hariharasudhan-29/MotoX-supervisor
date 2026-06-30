@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../theme/app_theme.dart';
 import '../widgets/glass_card.dart';
+import '../pages/navigation_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -16,6 +17,75 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _passwordController = TextEditingController();
   bool _obscurePassword = true;
   bool _rememberMe = false;
+  bool _isLoading = false;
+
+  void _performLogin() {
+    final mobile = _mobileController.text.trim();
+    final password = _passwordController.text.trim();
+
+    if (mobile.isEmpty) {
+      _showErrorSnackBar("Please enter your mobile number");
+      return;
+    }
+    if (mobile.length != 10 || double.tryParse(mobile) == null) {
+      _showErrorSnackBar("Please enter a valid 10-digit mobile number");
+      return;
+    }
+    if (password.isEmpty) {
+      _showErrorSnackBar("Please enter your password");
+      return;
+    }
+    if (password.length < 6) {
+      _showErrorSnackBar("Password must be at least 6 characters");
+      return;
+    }
+
+    // Demo Authentication Check
+    if (mobile != "9876543210" || password != "password") {
+      _showErrorSnackBar("Incorrect credentials (Demo: 9876543210 / password)");
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    Future.delayed(const Duration(milliseconds: 800), () {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+        Navigator.of(context).pushReplacement(
+          PageRouteBuilder(
+            pageBuilder: (context, animation, secondaryAnimation) => const NavigationScreen(),
+            transitionsBuilder: (context, animation, secondaryAnimation, child) {
+              return FadeTransition(opacity: animation, child: child);
+            },
+            transitionDuration: const Duration(milliseconds: 500),
+          ),
+        );
+      }
+    });
+  }
+
+  void _showErrorSnackBar(String message) {
+    ScaffoldMessenger.of(context).clearSnackBars();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            const Icon(Icons.error_outline, color: Colors.white, size: 18),
+            const SizedBox(width: 10),
+            Expanded(child: Text(message, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600))),
+          ],
+        ),
+        backgroundColor: const Color(0xFFEF4444),
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        margin: const EdgeInsets.all(16),
+      ),
+    );
+  }
 
   @override
   void dispose() {
@@ -358,28 +428,35 @@ class _LoginScreenState extends State<LoginScreen> {
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          onTap: () {
-            // Login Logic
-          },
+          onTap: _isLoading ? null : _performLogin,
           borderRadius: BorderRadius.circular(16),
           splashColor: Colors.white.withOpacity(0.2),
           child: Center(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  'SECURE SIGN IN',
-                  style: GoogleFonts.montserrat(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 15,
-                    letterSpacing: 2.0,
-                    color: Colors.black,
+            child: _isLoading
+                ? const SizedBox(
+                    height: 24,
+                    width: 24,
+                    child: CircularProgressIndicator(
+                      color: Colors.black,
+                      strokeWidth: 2,
+                    ),
+                  )
+                : Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        'SECURE SIGN IN',
+                        style: GoogleFonts.montserrat(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 15,
+                          letterSpacing: 2.0,
+                          color: Colors.black,
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      const Icon(Icons.arrow_forward, color: Colors.black, size: 18),
+                    ],
                   ),
-                ),
-                const SizedBox(width: 10),
-                const Icon(Icons.arrow_forward, color: Colors.black, size: 18),
-              ],
-            ),
           ),
         ),
       ),

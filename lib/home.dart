@@ -5,6 +5,8 @@ import 'widgets/stat_card.dart';
 import 'widgets/pulsing_dot.dart';
 import 'widgets/interactive_card.dart';
 import 'utils/vehicle_theme.dart';
+import 'main.dart';
+import 'pages/customer_page.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -76,361 +78,280 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
-      appBar: PreferredSize(
-        preferredSize: Size.fromHeight(90 + MediaQuery.of(context).padding.top),
-        child: SafeArea(
-          child: AppBar(
-            toolbarHeight: 90,
-            backgroundColor: Colors.white,
-            elevation: 0,
-          title: Center(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 1200),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Text(
-                        "Good Morning",
-                        style: TextStyle(
-                          color: Colors.black54,
-                          fontSize: 16,
-                        ),
-                      ),
-                      Text(
-                        "$userName !",
-                        style: const TextStyle(
-                          color: Colors.black,
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      Text(
-                        DateFormat('EEE, MMM d').format(DateTime.now()),
-                        style: const TextStyle(
-                          color: Colors.black54,
-                          fontSize: 16,
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      Container(
-                        padding: const EdgeInsets.all(3),
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: Colors.blue.shade100,
-                            width: 1.5,
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.blue.shade500.withValues(alpha: 0.1),
-                              blurRadius: 8,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                        child: Stack(
-                          children: [
-                            CircleAvatar(
-                              radius: 20,
-                              backgroundColor: Colors.blue.shade50,
-                              child: const Icon(
-                                Icons.person_rounded,
-                                color: Colors.blue,
-                                size: 24,
-                              ),
-                            ),
-                            Positioned(
-                              right: 1,
-                              bottom: 1,
-                              child: Container(
-                                width: 10,
-                                height: 10,
-                                decoration: BoxDecoration(
-                                  color: Colors.green,
-                                  shape: BoxShape.circle,
-                                  border: Border.all(
-                                    color: Colors.white,
-                                    width: 1.5,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
-      ),
+      backgroundColor: theme.colorScheme.background,
       body: Container(
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [
-              Color(0xFFF8FAFC),
-              Color(0xFFF1F5F9),
-              Color(0xFFEEF2F6),
-            ],
+            colors: isDark
+                ? [
+                    const Color(0xFF0F0F1A),
+                    const Color(0xFF151525),
+                    const Color(0xFF1A1A2E),
+                  ]
+                : [
+                    const Color(0xFFF8FAFC),
+                    const Color(0xFFF1F5F9),
+                    const Color(0xFFEEF2F6),
+                  ],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
         ),
         child: LayoutBuilder(
           builder: (context, constraints) {
-          final width = constraints.maxWidth;
-          final isWide = width >= 768;
-          final isMedium = width >= 600 && width < 768;
+            final width = constraints.maxWidth;
+            final isWide = width >= 768;
+            final isMedium = width >= 600 && width < 768;
 
-          // Determine grid layout based on screen width
-          int crossAxisCount = 2;
-          double childAspectRatio = 1.5;
-          if (isWide) {
-            crossAxisCount = 4;
-            childAspectRatio = 1.35;
-          } else if (isMedium) {
-            crossAxisCount = 4;
-            childAspectRatio = 1.25;
-          }
+            // Determine grid layout based on screen width
+            int crossAxisCount = 2;
+            double childAspectRatio = 1.5;
+            if (isWide) {
+              crossAxisCount = 4;
+              childAspectRatio = 1.35;
+            } else if (isMedium) {
+              crossAxisCount = 4;
+              childAspectRatio = 1.25;
+            }
 
-          final statsGrid = GridView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            primary: false,
-            itemCount: stats.length,
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: crossAxisCount,
-              crossAxisSpacing: 16,
-              mainAxisSpacing: 16,
-              childAspectRatio: childAspectRatio,
-            ),
-            itemBuilder: (context, index) {
-              return InteractiveCard(
-                child: StatCard(
-                  title: stats[index]["title"],
-                  count: stats[index]["count"],
-                  icon: stats[index]["icon"],
-                ),
-              );
-            },
-          );
-
-          final recentActivitiesHeader = Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
-                "Recent Activities",
-                style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF0F172A),
-                ),
-              ),
-              TextButton(
-                onPressed: () {},
-                child: const Text("View All"),
-              ),
-            ],
-          );
-
-          final Widget activitiesList;
-          if (width >= 600 && width < 768) {
-            activitiesList = GridView.builder(
+            final statsGrid = GridView.builder(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               primary: false,
-              itemCount: activities.length,
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
+              itemCount: stats.length,
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: crossAxisCount,
                 crossAxisSpacing: 16,
-                mainAxisSpacing: 12,
-                childAspectRatio: 1.8,
+                mainAxisSpacing: 16,
+                childAspectRatio: childAspectRatio,
               ),
               itemBuilder: (context, index) {
-                final act = activities[index];
+                final stat = stats[index];
                 return InteractiveCard(
-                  child: ActivityCard(
-                    customerName: act["customerName"],
-                    vehicleName: act["vehicleName"],
-                    status: act["status"],
-                    statusColor: act["statusColor"],
-                    time: act["time"],
-                    icon: act["icon"],
+                  onTap: () {
+                    if (stat["title"] == "Today's Customers") {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const CustomerPage(),
+                        ),
+                      );
+                    }
+                  },
+                  child: StatCard(
+                    title: stat["title"],
+                    count: stat["count"],
+                    icon: stat["icon"],
                   ),
                 );
               },
             );
-          } else {
-            activitiesList = ListView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              primary: false,
-              itemCount: activities.length,
-              itemBuilder: (context, index) {
-                final act = activities[index];
-                return InteractiveCard(
-                  child: ActivityCard(
-                    customerName: act["customerName"],
-                    vehicleName: act["vehicleName"],
-                    status: act["status"],
-                    statusColor: act["statusColor"],
-                    time: act["time"],
-                    icon: act["icon"],
-                  ),
-                );
-              },
-            );
-          }
 
-          final quickActionsButton = Container(
-            width: double.infinity,
-            height: 55,
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [Color(0xFF2563EB), Color(0xFF1D4ED8)],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              borderRadius: BorderRadius.circular(16),
-              boxShadow: [
-                BoxShadow(
-                  color: const Color(0xFF2563EB).withValues(alpha: 0.2),
-                  blurRadius: 12,
-                  offset: const Offset(0, 6),
+            final recentActivitiesHeader = Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  "Recent Activities",
+                  style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    color: theme.colorScheme.onBackground,
+                  ),
+                ),
+                TextButton(
+                  onPressed: () {},
+                  child: const Text("View All"),
                 ),
               ],
-            ),
-            child: ElevatedButton.icon(
-              onPressed: () {
-                debugPrint("New Customer Entry Clicked");
-              },
-              icon: const Icon(
-                Icons.add_rounded,
-                color: Colors.white,
-              ),
-              label: const Text(
-                "New Customer Entry",
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 0.5,
-                ),
-              ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.transparent,
-                shadowColor: Colors.transparent,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                ),
-              ),
-            ),
-          );
+            );
 
-          return Center(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 1200),
-              child: SingleChildScrollView(
-                controller: _mainScrollController,
-                child: Padding(
-                  padding: const EdgeInsets.all(24.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      if (_showNotification) ...[
-                        _buildNotificationBanner(),
-                        const SizedBox(height: 24),
-                      ],
-                      if (isWide) ...[
-                        statsGrid,
-                        const SizedBox(height: 32),
+            final Widget activitiesList;
+            if (width >= 600 && width < 768) {
+              activitiesList = GridView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                primary: false,
+                itemCount: activities.length,
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  crossAxisSpacing: 16,
+                  mainAxisSpacing: 12,
+                  childAspectRatio: 1.8,
+                ),
+                itemBuilder: (context, index) {
+                  final act = activities[index];
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: InteractiveCard(
+                      child: ActivityCard(
+                        customerName: act["customerName"],
+                        vehicleName: act["vehicleName"],
+                        status: act["status"],
+                        statusColor: act["statusColor"],
+                        time: act["time"],
+                        icon: act["icon"],
+                      ),
+                    ),
+                  );
+                },
+              );
+            } else {
+              activitiesList = ListView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                primary: false,
+                itemCount: activities.length,
+                itemBuilder: (context, index) {
+                  final act = activities[index];
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: InteractiveCard(
+                      child: ActivityCard(
+                        customerName: act["customerName"],
+                        vehicleName: act["vehicleName"],
+                        status: act["status"],
+                        statusColor: act["statusColor"],
+                        time: act["time"],
+                        icon: act["icon"],
+                      ),
+                    ),
+                  );
+                },
+              );
+            }
+
+
+            return Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 1200),
+                child: SingleChildScrollView(
+                  controller: _mainScrollController,
+                  child: Padding(
+                    padding: const EdgeInsets.all(24.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
                         Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Expanded(
-                              flex: 3,
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const WorkshopBays(),
-                                  const SizedBox(height: 32),
-                                  recentActivitiesHeader,
-                                  const SizedBox(height: 16),
-                                  activitiesList,
-                                ],
-                              ),
-                            ),
-                            const SizedBox(width: 32),
-                            Expanded(
-                              flex: 2,
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const Text(
-                                    "Quick Actions",
-                                    style: TextStyle(
-                                      fontSize: 22,
-                                      fontWeight: FontWeight.bold,
-                                      color: Color(0xFF0F172A),
-                                    ),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  "Good Morning",
+                                  style: TextStyle(
+                                    color: isDark ? Colors.white54 : Colors.black54,
+                                    fontSize: 16,
                                   ),
-                                  const SizedBox(height: 24),
-                                  quickActionsButton,
-                                  const SizedBox(height: 20),
-                                  _buildQuickInfoCard(),
-                                ],
+                                ),
+                                Text(
+                                  "$userName !",
+                                  style: TextStyle(
+                                    color: theme.colorScheme.onBackground,
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            Text(
+                              DateFormat('EEE, MMM d').format(DateTime.now()),
+                              style: TextStyle(
+                                color: isDark ? Colors.white54 : Colors.black54,
+                                fontSize: 16,
                               ),
                             ),
                           ],
-                        )
-                      ] else ...[
-                        statsGrid,
-                        const SizedBox(height: 32),
-                        const WorkshopBays(),
-                        const SizedBox(height: 32),
-                        recentActivitiesHeader,
-                        const SizedBox(height: 16),
-                        activitiesList,
-                        const SizedBox(height: 32),
-                        quickActionsButton,
-                        const SizedBox(height: 20),
-                        _buildQuickInfoCard(),
+                        ),
+                        const SizedBox(height: 24),
+                        if (_showNotification) ...[
+                          _buildNotificationBanner(),
+                          const SizedBox(height: 24),
+                        ],
+                        if (isWide) ...[
+                          statsGrid,
+                          const SizedBox(height: 32),
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Expanded(
+                                flex: 3,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const WorkshopBays(),
+                                    const SizedBox(height: 32),
+                                    recentActivitiesHeader,
+                                    const SizedBox(height: 16),
+                                    activitiesList,
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(width: 32),
+                              Expanded(
+                                flex: 2,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      "Quick Actions",
+                                      style: TextStyle(
+                                        fontSize: 22,
+                                        fontWeight: FontWeight.bold,
+                                        color: theme.colorScheme.onBackground,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 24),
+                                    _buildQuickInfoCard(),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          )
+                        ] else ...[
+                          statsGrid,
+                          const SizedBox(height: 32),
+                          const WorkshopBays(),
+                          const SizedBox(height: 32),
+                          recentActivitiesHeader,
+                          const SizedBox(height: 16),
+                          activitiesList,
+                          const SizedBox(height: 32),
+                          _buildQuickInfoCard(),
+                        ],
+                        const SizedBox(height: 80), // Prevent overlay by floating navigation bar
                       ],
-                    ],
+                    ),
                   ),
                 ),
               ),
-            ),
-          );
-        },
+            );
+          },
+        ),
       ),
-    ),
-  );
-}
+    );
+  }
 
   Widget _buildQuickInfoCard() {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDark ? Colors.white.withValues(alpha: 0.04) : Colors.white,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.blue.shade100.withValues(alpha: 0.8), width: 1.5),
+        border: Border.all(
+          color: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.blue.shade100.withValues(alpha: 0.8),
+          width: 1.5,
+        ),
         boxShadow: [
           BoxShadow(
-            color: Colors.blue.shade500.withValues(alpha: 0.03),
+            color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.03),
             blurRadius: 16,
             spreadRadius: 2,
             offset: const Offset(0, 8),
@@ -445,18 +366,18 @@ class _HomeState extends State<Home> {
               Container(
                 padding: const EdgeInsets.all(6),
                 decoration: BoxDecoration(
-                  color: Colors.blue.shade50,
+                  color: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.blue.shade50,
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(Icons.info_outline_rounded, color: Colors.blue, size: 16),
+                child: Icon(Icons.info_outline_rounded, color: isDark ? Colors.white70 : Colors.blue, size: 16),
               ),
               const SizedBox(width: 10),
-              const Text(
+              Text(
                 "Workshop Tip",
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
-                  color: Color(0xFF0F172A), // Slate 900
+                  color: theme.colorScheme.onBackground,
                 ),
               ),
             ],
@@ -465,7 +386,7 @@ class _HomeState extends State<Home> {
           Text(
             "Keep an eye on pending deliveries. Ensure vehicles undergo a final quality check before customer arrival.",
             style: TextStyle(
-              color: const Color(0xFF64748B), // Slate 500
+              color: isDark ? Colors.white70 : const Color(0xFF64748B),
               fontSize: 13,
               height: 1.5,
               fontWeight: FontWeight.w400,
@@ -477,29 +398,37 @@ class _HomeState extends State<Home> {
   }
 
   Widget _buildNotificationBanner() {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [
-            Colors.white.withValues(alpha: 0.85),
-            Colors.white.withValues(alpha: 0.55),
-          ],
+          colors: isDark
+              ? [
+                  Colors.white.withValues(alpha: 0.05),
+                  Colors.white.withValues(alpha: 0.02),
+                ]
+              : [
+                  Colors.white.withValues(alpha: 0.85),
+                  Colors.white.withValues(alpha: 0.55),
+                ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF3B82F6).withValues(alpha: 0.1),
+            color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.05),
             blurRadius: 16,
             spreadRadius: 1,
             offset: const Offset(0, 6),
           ),
         ],
         border: Border.all(
-          color: Colors.white.withValues(alpha: 0.7),
+          color: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.white.withValues(alpha: 0.7),
           width: 1.5,
         ),
       ),
@@ -507,15 +436,15 @@ class _HomeState extends State<Home> {
         children: [
           CircleAvatar(
             radius: 18,
-            backgroundColor: const Color(0xFF3B82F6).withValues(alpha: 0.1),
+            backgroundColor: const Color(0xFF6366F1).withValues(alpha: 0.1),
             child: const Icon(
               Icons.notifications_active_rounded,
-              color: Color(0xFF3B82F6),
+              color: Color(0xFF6366F1),
               size: 18,
             ),
           ),
           const SizedBox(width: 14),
-          const Expanded(
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
@@ -523,16 +452,16 @@ class _HomeState extends State<Home> {
                 Text(
                   "Alert Notification",
                   style: TextStyle(
-                    color: Color(0xFF0F172A),
+                    color: theme.colorScheme.onBackground,
                     fontWeight: FontWeight.bold,
                     fontSize: 15,
                   ),
                 ),
-                SizedBox(height: 2),
+                const SizedBox(height: 2),
                 Text(
                   "5 vehicles are ready for final quality check and delivery.",
                   style: TextStyle(
-                    color: Color(0xFF64748B),
+                    color: isDark ? Colors.white70 : const Color(0xFF64748B),
                     fontSize: 12,
                     fontWeight: FontWeight.w400,
                   ),
@@ -543,7 +472,7 @@ class _HomeState extends State<Home> {
           IconButton(
             padding: EdgeInsets.zero,
             constraints: const BoxConstraints(),
-            icon: const Icon(Icons.close_rounded, color: Color(0xFF64748B), size: 18),
+            icon: Icon(Icons.close_rounded, color: isDark ? Colors.white54 : const Color(0xFF64748B), size: 18),
             onPressed: () {
               setState(() {
                 _showNotification = false;
@@ -574,6 +503,9 @@ class _WorkshopBaysState extends State<WorkshopBays> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     final bays = [
       {"name": "Bay 1", "status": "In Service", "vehicle": "Mercedes S-Class", "active": true},
       {"name": "Bay 2", "status": "Diagnostic", "vehicle": "BMW M4", "active": true},
@@ -586,12 +518,12 @@ class _WorkshopBaysState extends State<WorkshopBays> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text(
+            Text(
               "Workshop Bays",
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
-                color: Color(0xFF0F172A),
+                color: theme.colorScheme.onBackground,
               ),
             ),
             TextButton(
@@ -656,34 +588,35 @@ class _WorkshopBaysState extends State<WorkshopBays> {
                     badgeText = "Occupied";
                   } else {
                     cardDecoration = BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.6),
+                      color: isDark ? Colors.white.withValues(alpha: 0.04) : Colors.white.withValues(alpha: 0.6),
                       borderRadius: BorderRadius.circular(20),
                       border: Border.all(
-                        color: Colors.white.withValues(alpha: 0.4),
+                        color: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.white.withValues(alpha: 0.4),
                         width: 1.5,
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.02),
+                          color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.02),
                           blurRadius: 10,
                           offset: const Offset(0, 4),
                         ),
                       ],
                     );
-                    textColor = const Color(0xFF0F172A);
-                    subtitleColor = Colors.grey.shade400;
+                    textColor = theme.colorScheme.onBackground;
+                    subtitleColor = isDark ? Colors.white54 : Colors.grey.shade400;
                     iconData = Icons.add_circle_outline_rounded;
-                    iconColor = Colors.grey;
-                    iconBgColor = Colors.grey.shade100;
-                    badgeBgColor = Colors.grey.shade100;
-                    badgeTextColor = Colors.grey;
+                    iconColor = isDark ? Colors.white54 : Colors.grey;
+                    iconBgColor = isDark ? Colors.white.withValues(alpha: 0.05) : Colors.grey.shade100;
+                    badgeBgColor = isDark ? Colors.white.withValues(alpha: 0.05) : Colors.grey.shade100;
+                    badgeTextColor = isDark ? Colors.white54 : Colors.grey;
                     badgeText = "Free";
                   }
 
-                  return InteractiveCard(
-                    child: Container(
-                      width: 280,
-                      margin: const EdgeInsets.only(right: 16),
+                  return Padding(
+                    padding: const EdgeInsets.only(right: 16),
+                    child: InteractiveCard(
+                      child: Container(
+                        width: 280,
                       padding: const EdgeInsets.all(16),
                       decoration: cardDecoration,
                       child: Row(
@@ -758,7 +691,8 @@ class _WorkshopBaysState extends State<WorkshopBays> {
                         ],
                       ),
                     ),
-                  );
+                  ),
+                );
                 }).toList(),
               ),
             ),
